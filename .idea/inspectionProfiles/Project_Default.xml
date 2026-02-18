@@ -1,0 +1,30 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="uvicorn" />
+          <option value="torch" />
+          <option value="feedparser" />
+          <option value="anthropic" />
+          <option value="openai" />
+          <option value="beautifulsoup4" />
+          <option value="lxml" />
+          <option value="fastapi" />
+          <option value="websockets" />
+          <option value="pydantic" />
+          <option value="tiktoken" />
+          <option value="selenium" />
+          <option value="requests" />
+          <option value="aiohttp" />
+          <option value="python-dotenv" />
+          <option value="click" />
+          <option value="rich" />
+          <option value="loguru" />
+          <option value="webdriver-manager" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
