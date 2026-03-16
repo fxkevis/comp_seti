@@ -11,8 +11,8 @@
 
 typedef struct {
     uint32_t length;
-    uint8_t  type;
-    char     payload[MAX_PAYLOAD];
+    uint8_t type;
+    char payload[MAX_PAYLOAD];
 } Message;
 
 enum {
@@ -24,9 +24,11 @@ enum {
     MSG_BYE = 6
 };
 
-bool send_all(int fd, const void* buf, size_t len) {
+bool send_all(int fd, const void* buf, size_t len)
+{
     const char* ptr = (const char*)buf;
-    while (len > 0) {
+    while (len > 0)
+    {
         ssize_t sent = send(fd, ptr, len, 0);
         if (sent <= 0) return false;
         ptr += sent;
@@ -35,9 +37,11 @@ bool send_all(int fd, const void* buf, size_t len) {
     return true;
 }
 
-bool recv_all(int fd, void* buf, size_t len) {
+bool recv_all(int fd, void* buf, size_t len)
+{
     char* ptr = (char*)buf;
-    while (len > 0) {
+    while (len > 0)
+    {
         ssize_t r = recv(fd, ptr, len, 0);
         if (r <= 0) return false;
         ptr += r;
@@ -46,7 +50,8 @@ bool recv_all(int fd, void* buf, size_t len) {
     return true;
 }
 
-bool send_msg(int fd, uint8_t type, const char* text) {
+bool send_msg(int fd, uint8_t type, const char* text)
+{
     Message msg;
     memset(&msg, 0, sizeof(msg));
     msg.type = type;
@@ -58,7 +63,8 @@ bool send_msg(int fd, uint8_t type, const char* text) {
     return send_all(fd, &msg, total);
 }
 
-bool recv_msg(int fd, Message& msg) {
+bool recv_msg(int fd, Message& msg)
+{
     if (!recv_all(fd, &msg.length, sizeof(uint32_t))) return false;
     uint32_t len = ntohl(msg.length);
     if (len == 0 || len > MAX_PAYLOAD + 1) return false;
@@ -70,7 +76,6 @@ bool recv_msg(int fd, Message& msg) {
 int main() {
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) { perror("socket"); return 1; }
-
     int opt = 1;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
@@ -79,12 +84,9 @@ int main() {
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(PORT);
-
     if (bind(server_fd, (sockaddr*)&addr, sizeof(addr)) < 0) { perror("bind"); return 1; }
     if (listen(server_fd, 1) < 0) { perror("listen"); return 1; }
-
     std::cout << "Server listening on port " << PORT << std::endl;
-
     sockaddr_in client_addr;
     memset(&client_addr, 0, sizeof(client_addr));
     socklen_t client_len = sizeof(client_addr);
@@ -95,25 +97,26 @@ int main() {
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
     int client_port = ntohs(client_addr.sin_port);
     std::cout << "Client connected" << std::endl;
-
-    // Ожидаем MSG_HELLO
     Message msg;
-    if (!recv_msg(client_fd, msg) || msg.type != MSG_HELLO) {
+    if (!recv_msg(client_fd, msg) || msg.type != MSG_HELLO)
+    {
         std::cerr << "Expected MSG_HELLO" << std::endl;
         close(client_fd); close(server_fd); return 1;
     }
     std::cout << "[" << client_ip << ":" << client_port << "]: Hello " << msg.payload << std::endl;
-
     char welcome[64];
     snprintf(welcome, sizeof(welcome), "%s:%d", client_ip, client_port);
     send_msg(client_fd, MSG_WELCOME, welcome);
 
-    while (true) {
-        if (!recv_msg(client_fd, msg)) {
+    while (true)
+    {
+        if (!recv_msg(client_fd, msg))
+        {
             std::cout << "Client disconnected" << std::endl;
             break;
         }
-        switch (msg.type) {
+        switch (msg.type)
+        {
             case MSG_TEXT:
                 std::cout << "[" << client_ip << ":" << client_port << "]: " << msg.payload << std::endl;
                 break;
