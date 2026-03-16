@@ -13,17 +13,17 @@
 
 typedef struct {
     uint32_t length;
-    uint8_t  type;
-    char     payload[MAX_PAYLOAD];
+    uint8_t type;
+    char payload[MAX_PAYLOAD];
 } Message;
 
 enum {
-    MSG_HELLO   = 1,
+    MSG_HELLO = 1,
     MSG_WELCOME = 2,
-    MSG_TEXT    = 3,
-    MSG_PING    = 4,
-    MSG_PONG    = 5,
-    MSG_BYE     = 6
+    MSG_TEXT = 3,
+    MSG_PING = 4,
+    MSG_PONG = 5,
+    MSG_BYE = 6
 };
 
 bool send_all(int fd, const void* buf, size_t len) {
@@ -98,7 +98,6 @@ int main() {
     }
     std::cout << "Welcome " << msg.payload << std::endl;
 
-    // Двусторонний обмен через select
     while (true) {
         fd_set fds;
         FD_ZERO(&fds);
@@ -108,7 +107,6 @@ int main() {
         int maxfd = sockfd > STDIN_FILENO ? sockfd : STDIN_FILENO;
         if (select(maxfd + 1, &fds, nullptr, nullptr, nullptr) < 0) break;
 
-        // Данные от сервера
         if (FD_ISSET(sockfd, &fds)) {
             if (!recv_msg(sockfd, msg)) {
                 std::cout << "Disconnected" << std::endl;
@@ -130,7 +128,6 @@ int main() {
             std::cout << "> " << std::flush;
         }
 
-        // Ввод пользователя
         if (FD_ISSET(STDIN_FILENO, &fds)) {
             std::string line;
             std::cout << "> ";
