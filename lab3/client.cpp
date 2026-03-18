@@ -73,13 +73,11 @@ bool recv_msg(int fd, Message& msg)
     return true;
 }
 
-// общее состояние
-static int sockfd   = -1;
-static bool running  = true;
+static int sockfd = -1;
+static bool running = true;
 static char nick[64] = "";
 static pthread_mutex_t sock_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-// поток приема
 void* recv_thread(void* arg)
 {
     (void)arg;

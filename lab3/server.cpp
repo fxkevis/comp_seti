@@ -75,7 +75,6 @@ bool recv_msg(int fd, Message& msg)
     return true;
 }
 
-// список клиентов
 struct Client {
     int  fd;
     char nick[64];
@@ -109,7 +108,6 @@ void remove_client(int fd)
     pthread_mutex_unlock(&clients_mutex);
 }
 
-// очередь подключений
 static std::queue<int> job_queue;
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  queue_cond  = PTHREAD_COND_INITIALIZER;
@@ -132,7 +130,6 @@ int dequeue()
     return fd;
 }
 
-// рабочий поток
 void* worker(void*)
 {
     pthread_detach(pthread_self());
@@ -216,11 +213,10 @@ int main() {
     if (listen(server_fd, POOL_SIZE) < 0) {perror("listen"); return 1;}
 
     std::cout << "Server listening on port " << PORT << " (thread pool: " << POOL_SIZE << ")" << std::endl;
-    // создаю пул потоков
+
     pthread_t threads[POOL_SIZE];
     for (int i = 0; i < POOL_SIZE; i++)
         pthread_create(&threads[i], NULL, worker, NULL);
-    // основной цикл с accept
     while (true) {
         sockaddr_in client_addr;
         memset(&client_addr, 0, sizeof(client_addr));
