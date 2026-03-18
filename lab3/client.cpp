@@ -14,8 +14,8 @@
 
 typedef struct {
     uint32_t length;
-    uint8_t  type;
-    char     payload[MAX_PAYLOAD];
+    uint8_t type;
+    char payload[MAX_PAYLOAD];
 } Message;
 
 enum {
