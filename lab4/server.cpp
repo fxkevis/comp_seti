@@ -70,7 +70,6 @@ bool send_msg(int fd, uint8_t type, const char* text)
     std::cout << "[Layer 7 - Application] prepare response (type=" << (int)type << ")" << std::endl;
     std::cout << "[Layer 6 - Presentation] serialize Message" << std::endl;
     std::cout << "[Layer 4 - Transport] send()" << std::endl;
-
     return send_all(fd, &msg, sizeof(uint32_t) + 1 + plen);
 }
 
@@ -87,9 +86,9 @@ bool recv_msg(int fd, Message& msg)
 }
 
 typedef struct {
-    int  sock;
+    int sock;
     char nickname[32];
-    int  authenticated;
+    int authenticated;
 } Client;
 
 static std::vector<Client> clients;
@@ -145,7 +144,7 @@ void remove_client(int fd)
 
 static std::queue<int> job_queue;
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  queue_cond  = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t queue_cond = PTHREAD_COND_INITIALIZER;
 
 void enqueue(int fd)
 {
