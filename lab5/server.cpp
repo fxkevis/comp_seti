@@ -21,7 +21,7 @@
 
 typedef struct {
     uint32_t length;
-    uint8_t  type;
+    uint8_t type;
     uint32_t msg_id;
     char sender[MAX_NAME];
     char receiver[MAX_NAME];
@@ -160,8 +160,7 @@ bool recv_all(int fd, void* buf, size_t len)
     return true;
 }
 
-bool send_msgex(int fd, uint8_t type, const char* sender, const char* receiver,
-                const char* text, const char* dst_ip = "127.0.0.1")
+bool send_msgex(int fd, uint8_t type, const char* sender, const char* receiver, const char* text, const char* dst_ip = "127.0.0.1")
 {
     MessageEx msg;
     memset(&msg, 0, sizeof(msg));
@@ -319,14 +318,13 @@ static std::string json_get(const std::string& block, const char* key) {
     }
 }
 
-// форматировать одну запись истории в читаемую строку
 static std::string format_history_record(const std::string& block) {
-    std::string ts_str   = json_get(block, "timestamp");
-    std::string id_str   = json_get(block, "msg_id");
-    std::string sender   = json_get(block, "sender");
+    std::string ts_str = json_get(block, "timestamp");
+    std::string id_str = json_get(block, "msg_id");
+    std::string sender = json_get(block, "sender");
     std::string receiver = json_get(block, "receiver");
-    std::string type_s   = json_get(block, "type");
-    std::string text     = json_get(block, "text");
+    std::string type_s = json_get(block, "type");
+    std::string text = json_get(block, "text");
     std::string offline  = json_get(block, "is_offline");
 
     // форматируем время
