@@ -176,17 +176,16 @@ bool send_msgex(int fd, uint8_t type, const char* sender, const char* receiver,
     msg.payload[plen] = '\0';
 
     // wire: length | type | msg_id | sender | receiver | timestamp | payload
-    uint32_t wire_len = sizeof(uint8_t) + sizeof(uint32_t) +
-                        MAX_NAME + MAX_NAME + sizeof(time_t) + (uint32_t)(plen + 1);
+    uint32_t wire_len = sizeof(uint8_t) + sizeof(uint32_t) + MAX_NAME + MAX_NAME + sizeof(time_t) + (uint32_t)(plen + 1);
     msg.length = htonl(wire_len);
     log_send(dst_ip, type);
     if (!send_all(fd, &msg.length, sizeof(uint32_t))) return false;
-    if (!send_all(fd, &msg.type,   sizeof(uint8_t)))  return false;
+    if (!send_all(fd, &msg.type,   sizeof(uint8_t))) return false;
     if (!send_all(fd, &msg.msg_id, sizeof(uint32_t))) return false;
-    if (!send_all(fd, msg.sender,  MAX_NAME))          return false;
-    if (!send_all(fd, msg.receiver,MAX_NAME))          return false;
+    if (!send_all(fd, msg.sender,  MAX_NAME)) return false;
+    if (!send_all(fd, msg.receiver,MAX_NAME)) return false;
     if (!send_all(fd, &msg.timestamp, sizeof(time_t))) return false;
-    if (!send_all(fd, msg.payload, plen + 1))          return false;
+    if (!send_all(fd, msg.payload, plen + 1)) return false;
     return true;
 }
 
@@ -198,7 +197,7 @@ bool recv_msgex(int fd, MessageEx& msg, const char* src_ip)
     if (!recv_all(fd, &msg.type, sizeof(uint8_t)))  return false;
     if (!recv_all(fd, &msg.msg_id, sizeof(uint32_t))) return false;
     msg.msg_id = ntohl(msg.msg_id);
-    if (!recv_all(fd, msg.sender,   MAX_NAME)) return false;
+    if (!recv_all(fd, msg.sender, MAX_NAME)) return false;
     if (!recv_all(fd, msg.receiver, MAX_NAME)) return false;
     if (!recv_all(fd, &msg.timestamp, sizeof(time_t))) return false;
     uint32_t plen = wire_len - sizeof(uint8_t) - sizeof(uint32_t) - MAX_NAME - MAX_NAME - sizeof(time_t);
@@ -562,7 +561,6 @@ void* worker(void*)
                 int n = 0;
                 if (strlen(msg.payload) > 0) n = atoi(msg.payload);
                 std::string hist = read_history(n);
-                // при необходимости делю на чанки
                 size_t offset = 0;
                 while (offset < hist.size())
                 {
