@@ -179,9 +179,9 @@ bool send_msgex(int fd, uint8_t type, const char* sender, const char* receiver, 
     msg.length = htonl(wire_len);
     log_send(dst_ip, type);
     if (!send_all(fd, &msg.length, sizeof(uint32_t))) return false;
-    if (!send_all(fd, &msg.type,   sizeof(uint8_t))) return false;
+    if (!send_all(fd, &msg.type, sizeof(uint8_t))) return false;
     if (!send_all(fd, &msg.msg_id, sizeof(uint32_t))) return false;
-    if (!send_all(fd, msg.sender,  MAX_NAME)) return false;
+    if (!send_all(fd, msg.sender, MAX_NAME)) return false;
     if (!send_all(fd, msg.receiver,MAX_NAME)) return false;
     if (!send_all(fd, &msg.timestamp, sizeof(time_t))) return false;
     if (!send_all(fd, msg.payload, plen + 1)) return false;
@@ -291,7 +291,7 @@ void remove_client(int fd)
     pthread_mutex_unlock(&clients_mutex);
 }
 
-// извлечь значение поля из JSON-строки вида: "key": "value" или "key": 123
+// извлечь значение поля из JSON-строки вида:   key: value
 static std::string json_get(const std::string& block, const char* key) {
     std::string search = std::string("\"") + key + "\"";
     size_t pos = block.find(search);
@@ -335,16 +335,16 @@ static std::string format_history_record(const std::string& block) {
     }
 
     char line[512];
-    if (type_s == "MSG_PRIVATE") {
+    if (type_s == "MSG_PRIVATE")
+    {
         if (offline == "true")
-            snprintf(line, sizeof(line), "[%s][id=%s][%s -> %s][OFFLINE]: %s",
-                     time_buf, id_str.c_str(), sender.c_str(), receiver.c_str(), text.c_str());
+            snprintf(line, sizeof(line), "[%s][id=%s][%s -> %s][OFFLINE]: %s", time_buf, id_str.c_str(), sender.c_str(), receiver.c_str(), text.c_str());
         else
-            snprintf(line, sizeof(line), "[%s][id=%s][%s -> %s][PRIVATE]: %s",
-                     time_buf, id_str.c_str(), sender.c_str(), receiver.c_str(), text.c_str());
-    } else {
-        snprintf(line, sizeof(line), "[%s][id=%s][%s]: %s",
-                 time_buf, id_str.c_str(), sender.c_str(), text.c_str());
+            snprintf(line, sizeof(line), "[%s][id=%s][%s -> %s][PRIVATE]: %s", time_buf, id_str.c_str(), sender.c_str(), receiver.c_str(), text.c_str());
+    }
+    else
+    {
+        snprintf(line, sizeof(line), "[%s][id=%s][%s]: %s", time_buf, id_str.c_str(), sender.c_str(), text.c_str());
     }
     return std::string(line) + "\n";
 }
