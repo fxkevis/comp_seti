@@ -203,7 +203,7 @@ void* recv_thread(void*)
                 std::cout << "> " << std::flush;
                 break;
             case MSG_HISTORY_DATA:
-                std::cout << "\n" << msg.payload;
+                std::cout << "\n" << msg.payload << std::flush;
                 std::cout << "[LOG]: i love TCP/IP (don't tell UDP)" << std::endl;
                 std::cout << "> " << std::flush;
                 break;

@@ -293,27 +293,86 @@ void remove_client(int fd)
     pthread_mutex_unlock(&clients_mutex);
 }
 
-// прочитать последние N строк из истории файла
+// извлечь значение поля из JSON-строки вида: "key": "value" или "key": 123
+static std::string json_get(const std::string& block, const char* key) {
+    std::string search = std::string("\"") + key + "\"";
+    size_t pos = block.find(search);
+    if (pos == std::string::npos) return "";
+    pos = block.find(':', pos);
+    if (pos == std::string::npos) return "";
+    pos++;
+    while (pos < block.size() && (block[pos] == ' ' || block[pos] == '\t')) pos++;
+    if (pos >= block.size()) return "";
+    if (block[pos] == '"') {
+        // строковое значение
+        pos++;
+        size_t end = block.find('"', pos);
+        if (end == std::string::npos) return "";
+        return block.substr(pos, end - pos);
+    } else {
+        // числовое значение
+        size_t end = pos;
+        while (end < block.size() && block[end] != ',' && block[end] != '\n' && block[end] != '}') end++;
+        std::string val = block.substr(pos, end - pos);
+        // trim
+        while (!val.empty() && (val.back() == ' ' || val.back() == '\r')) val.pop_back();
+        return val;
+    }
+}
+
+// форматировать одну запись истории в читаемую строку
+static std::string format_history_record(const std::string& block) {
+    std::string ts_str   = json_get(block, "timestamp");
+    std::string id_str   = json_get(block, "msg_id");
+    std::string sender   = json_get(block, "sender");
+    std::string receiver = json_get(block, "receiver");
+    std::string type_s   = json_get(block, "type");
+    std::string text     = json_get(block, "text");
+    std::string offline  = json_get(block, "is_offline");
+
+    // форматируем время
+    char time_buf[MAX_TIME_STR] = "0000-00-00 00:00:00";
+    if (!ts_str.empty()) {
+        time_t ts = (time_t)atol(ts_str.c_str());
+        format_time(ts, time_buf, sizeof(time_buf));
+    }
+
+    char line[512];
+    if (type_s == "MSG_PRIVATE") {
+        if (offline == "true")
+            snprintf(line, sizeof(line), "[%s][id=%s][%s -> %s][OFFLINE]: %s",
+                     time_buf, id_str.c_str(), sender.c_str(), receiver.c_str(), text.c_str());
+        else
+            snprintf(line, sizeof(line), "[%s][id=%s][%s -> %s][PRIVATE]: %s",
+                     time_buf, id_str.c_str(), sender.c_str(), receiver.c_str(), text.c_str());
+    } else {
+        snprintf(line, sizeof(line), "[%s][id=%s][%s]: %s",
+                 time_buf, id_str.c_str(), sender.c_str(), text.c_str());
+    }
+    return std::string(line) + "\n";
+}
+
+// прочитать последние N записей из истории, вернуть в читаемом формате
 std::string read_history(int n) {
     pthread_mutex_lock(&history_mutex);
     FILE* f = fopen(HISTORY_FILE, "r");
-    if (!f) { pthread_mutex_unlock(&history_mutex); return "(no history)"; }
+    if (!f) { pthread_mutex_unlock(&history_mutex); return "(no history)\n"; }
 
-    // сбор JSON кусков
     std::vector<std::string> records;
     std::string cur;
     char line[512];
-    while (fgets(line, sizeof(line), f))
-    {
+    while (fgets(line, sizeof(line), f)) {
         cur += line;
         if (line[0] == '}') { records.push_back(cur); cur = ""; }
     }
     fclose(f);
     pthread_mutex_unlock(&history_mutex);
-    if (records.empty()) return "(no history)";
+
+    if (records.empty()) return "(no history)\n";
     int start = (n > 0 && (int)records.size() > n) ? (int)records.size() - n : 0;
     std::string result;
-    for (int i = start; i < (int)records.size(); i++) result += records[i];
+    for (int i = start; i < (int)records.size(); i++)
+        result += format_history_record(records[i]);
     return result;
 }
 
