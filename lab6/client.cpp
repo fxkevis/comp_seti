@@ -608,7 +608,6 @@ int main()
             std::cout << "/ping" << std::endl;
             std::cout << "/ping N" << std::endl;
             std::cout << "/netdiag" << std::endl;
-            std::cout << "Tip: packets never sleep" << std::endl;
         }
         else if (line.substr(0, 3) == "/w ") 
         {

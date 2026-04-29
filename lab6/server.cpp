@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdlib>
-
+// ./server --delay=100 --drop=0.2 --corrupt=0.1
 #define MAX_NAME 32
 #define MAX_PAYLOAD 256
 #define MAX_TIME_STR 32
